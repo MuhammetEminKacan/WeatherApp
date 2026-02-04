@@ -2,7 +2,10 @@ package com.mek.weatherapp.data.di
 
 import com.mek.weatherapp.data.remote.WeatherApi
 import com.mek.weatherapp.data.remote.interceptor.WeatherQueryInterceptor
+import com.mek.weatherapp.data.repository.WeatherRepositoryImpl
+import com.mek.weatherapp.domain.repository.WeatherRepository
 import com.mek.weatherapp.utils.Constants.BASE_URL
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,7 +18,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
 
     @Provides
     @Singleton
@@ -52,4 +54,16 @@ object AppModule {
     ): WeatherApi {
         return retrofit.create(WeatherApi::class.java)
     }
+}
+
+// Repository binding için ayrı module
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindWeatherRepository(
+        weatherRepositoryImpl: WeatherRepositoryImpl
+    ): WeatherRepository
 }

@@ -5,5 +5,6 @@ data class DailyForecast(
     val minTemp: Double,
     val maxTemp: Double,
     val icon: String,
+    val description: String,
     val hourlyForecasts: List<HourlyForecast>
 )

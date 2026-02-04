@@ -1,6 +1,6 @@
 package com.mek.weatherapp.data.repository
 
-import android.net.http.HttpException
+import retrofit2.HttpException
 import android.util.Log
 import com.mek.weatherapp.data.mapper.toDomain
 import com.mek.weatherapp.data.remote.WeatherApi

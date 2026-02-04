@@ -19,6 +19,7 @@ fun ForecastResponseDto.toDomain(): WeatherForecast {
         LocalDateTime.parse(it.dt_txt, formatter).toLocalDate()
     }
 
+    // BUGÜN
     val todayEntries = groupedByDay.entries.first().value
 
     val today = todayEntries.first().let {
@@ -32,6 +33,7 @@ fun ForecastResponseDto.toDomain(): WeatherForecast {
         )
     }
 
+    // GÜNLÜKLER
     val dailyForecasts = groupedByDay.map { (date, items) ->
 
         val minTemp = items.minOf { it.main.temp_min }
@@ -42,6 +44,7 @@ fun ForecastResponseDto.toDomain(): WeatherForecast {
             minTemp = minTemp,
             maxTemp = maxTemp,
             icon = items.first().weather.first().icon,
+            description = items.first().weather.first().description, // ← BACKEND
             hourlyForecasts = items.map { hourly ->
                 HourlyForecast(
                     time = LocalDateTime

@@ -11,5 +11,11 @@ sealed class WeatherEvent {
         val cityName: String
     ) : WeatherEvent()
 
-    object Retry : WeatherEvent()
+    data class UpdateSearchQuery(
+        val query: String
+    ) : WeatherEvent()
+
+    data object ClearError : WeatherEvent()
+
+    data object Retry : WeatherEvent()
 }

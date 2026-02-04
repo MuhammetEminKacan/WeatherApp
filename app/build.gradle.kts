@@ -96,5 +96,9 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     implementation(libs.androidx.work.runtime.ktx)
 
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
+
+    implementation("com.google.android.gms:play-services-location:21.1.0")
+
 
 }
