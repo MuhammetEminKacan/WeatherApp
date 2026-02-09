@@ -25,6 +25,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mek.weatherapp.domain.model.DailyForecast
 import com.mek.weatherapp.domain.model.HourlyForecast
+import com.mek.weatherapp.domain.model.WeatherForecast
+import com.mek.weatherapp.presentation.events.WeatherDetailEvent
+import com.mek.weatherapp.presentation.viewmodels.WeatherDetailViewModel
 import com.mek.weatherapp.presentation.viewmodels.WeatherViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,15 +35,23 @@ import com.mek.weatherapp.presentation.viewmodels.WeatherViewModel
 fun DetailScreen(
     dayIndex: Int,
     navController: NavController,
-    viewModel: WeatherViewModel
+    weatherForecast: WeatherForecast
 ) {
+    val viewModel = remember { WeatherDetailViewModel() }
     val uiState by viewModel.uiState.collectAsState()
 
-    val dailyForecast = uiState.weather
-        ?.dailyForecasts
-        ?.getOrNull(dayIndex)
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(
+            WeatherDetailEvent.LoadDay(
+                weatherForecast = weatherForecast,
+                dayIndex = dayIndex
+            )
+        )
+    }
 
-    if (dailyForecast == null) {
+    val dailyForecast = uiState.dailyForecast
+
+    if (uiState.isLoading || dailyForecast == null) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center

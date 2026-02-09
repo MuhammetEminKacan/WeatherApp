@@ -107,7 +107,7 @@ class MainActivity : ComponentActivity() {
                             DetailScreen(
                                 dayIndex = dayIndex,
                                 navController = navController,
-                                viewModel = viewModel
+                                weatherForecast = viewModel.uiState.value.weather ?: return@composable
                             )
                         }
                     }
