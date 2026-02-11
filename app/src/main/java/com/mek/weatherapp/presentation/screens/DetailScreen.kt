@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -12,7 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -20,7 +18,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mek.weatherapp.domain.model.DailyForecast
@@ -28,14 +25,13 @@ import com.mek.weatherapp.domain.model.HourlyForecast
 import com.mek.weatherapp.domain.model.WeatherForecast
 import com.mek.weatherapp.presentation.events.WeatherDetailEvent
 import com.mek.weatherapp.presentation.viewmodels.WeatherDetailViewModel
-import com.mek.weatherapp.presentation.viewmodels.WeatherViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
     dayIndex: Int,
-    navController: NavController,
-    weatherForecast: WeatherForecast
+    weatherForecast: WeatherForecast,
+    onBack: () -> Unit
 ) {
     val viewModel = remember { WeatherDetailViewModel() }
     val uiState by viewModel.uiState.collectAsState()
@@ -86,18 +82,8 @@ fun DetailScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(
-                    onClick = { navController.popBackStack() },
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.3f))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBackIosNew,
-                        contentDescription = "Geri",
-                        tint = Color.White
-                    )
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Default.ArrowBackIosNew, contentDescription = null)
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))

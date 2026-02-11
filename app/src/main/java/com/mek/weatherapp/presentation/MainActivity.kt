@@ -15,15 +15,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.ui.NavDisplay
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.mek.weatherapp.presentation.navigation.Detail
+import com.mek.weatherapp.presentation.navigation.Navigator
+import com.mek.weatherapp.presentation.navigation.Weather
+import com.mek.weatherapp.presentation.navigation.rememberNavigationState
+import com.mek.weatherapp.presentation.navigation.toEntries
 import com.mek.weatherapp.presentation.screens.DetailScreen
 import com.mek.weatherapp.presentation.screens.WeatherScreen
 import com.mek.weatherapp.presentation.ui.theme.WeatherAppTheme
@@ -65,52 +67,56 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WeatherAppTheme {
-                val navController = rememberNavController()
+
+                //YENİ: Navigation state
+                val navigationState = rememberNavigationState(
+                    startRoute = Weather,
+                    topLevelRoutes = setOf(Weather)
+                )
+
+                // YENİ: Navigator (NavController yerine)
+                val navigator = remember {
+                    Navigator(navigationState)
+                }
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = Screen.WeatherScreen.route,
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
-                        composable(Screen.WeatherScreen.route) {
-                            val viewModel: WeatherViewModel = hiltViewModel()
 
-                            WeatherScreen(
-                                viewModel = viewModel,
-                                onLocationRequest = { requestLocation() },
-                                registerLocationCallbacks = { onSuccess, onFail ->
-                                    onLocationResult = onSuccess
-                                    onLocationFailed = onFail
-                                },
-                                onNavigateToDetail = { dayIndex ->
-                                    navController.navigate(
-                                        Screen.DetailScreen.createRoute(dayIndex)
+                    NavDisplay(
+                        modifier = Modifier.padding(innerPadding),
+                        entries = navigationState.toEntries { key ->
+                            when (key) {
+
+                                is Weather -> NavEntry(key) {
+                                    val viewModel: WeatherViewModel = hiltViewModel()
+
+                                    WeatherScreen(
+                                        viewModel = viewModel,
+                                        onLocationRequest = { requestLocation() },
+                                        registerLocationCallbacks = { onSuccess, onFail ->
+                                            onLocationResult = onSuccess
+                                            onLocationFailed = onFail
+                                        },
+                                        onNavigateToDetail = { dayIndex ->
+                                            navigator.navigate(Detail(dayIndex))
+                                        }
                                     )
                                 }
-                            )
-                        }
 
-                        composable(
-                            route = Screen.DetailScreen.route,
-                            arguments = listOf(
-                                navArgument("dayIndex") { type = NavType.IntType }
-                            )
-                        ) { backStackEntry ->
-                            val parentEntry = remember(backStackEntry) {
-                                navController.getBackStackEntry(Screen.WeatherScreen.route)
+                                is Detail -> NavEntry(key) {
+                                    val viewModel: WeatherViewModel = hiltViewModel()
+
+                                    DetailScreen(
+                                        dayIndex = key.dayIndex,
+                                        weatherForecast = viewModel.uiState.value.weather!!,
+                                        onBack = { navigator.goBack() }
+                                    )
+                                }
+
+                                else -> error("Unknown NavKey: $key")
                             }
-
-                            val viewModel: WeatherViewModel = hiltViewModel(parentEntry)
-                            val dayIndex = backStackEntry.arguments?.getInt("dayIndex") ?: 0
-
-                            DetailScreen(
-                                dayIndex = dayIndex,
-                                navController = navController,
-                                weatherForecast = viewModel.uiState.value.weather ?: return@composable
-                            )
-                        }
-                    }
+                        },
+                        onBack = { navigator.goBack() }
+                    )
                 }
             }
         }
